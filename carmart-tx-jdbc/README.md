@@ -85,15 +85,15 @@ NOTE: You need to add the following snippet to your configuration file for Maven
          <password>admin</password>
     </server>`
     
-    and configure Tomcat in the same way - add user admin to $TOMCAT_HOME/conf/tomcat-users.xml:
+And configure Tomcat in the same way - add user admin to $TOMCAT_HOME/conf/tomcat-users.xml:
     
     `<role rolename="manager-script"/>
      <user username="admin" password="admin" roles="manager-script"/>`
      
-     After that, Maven will be able to deploy the application to running Tomcat container.
+After that, Maven will be able to deploy the application to the running Tomcat container.
 
 4) Go to http://localhost:8080/carmart-tx-jdbc
 
 5) Undeploy the application
 
-    `mvn jboss-as:undeploy`
+    `mvn tomcat:undeploy`
