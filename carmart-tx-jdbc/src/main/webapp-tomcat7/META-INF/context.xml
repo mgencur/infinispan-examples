@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context>
+   <Manager pathname=""/> <!-- disables storage of sessions across restarts -->
+   <Resource name="BeanManager"
+      auth="Container"
+      type="javax.enterprise.inject.spi.BeanManager"
+      factory="org.jboss.weld.resources.ManagerObjectFactory"/>
+   <Resource name="jdbc/ExampleDB"
+      auth="Container"
+      type="javax.sql.DataSource"
+      factory="org.apache.tomcat.jdbc.pool.DataSourceFactory"
+      maxActive="100"
+      minIdle="30"
+      maxWait="10000"
+      jmxEnabled="true"
+      username="carmart"
+      password="carmart"
+      driverClassName="com.mysql.jdbc.Driver"
+      url="jdbc:mysql://localhost:3306/carmartdb"/>
+</Context>
