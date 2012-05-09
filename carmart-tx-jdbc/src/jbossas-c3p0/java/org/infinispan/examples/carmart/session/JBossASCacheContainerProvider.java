@@ -57,7 +57,7 @@ public class JBossASCacheContainerProvider implements CacheContainerProvider {
         if (manager == null) {
             GlobalConfiguration glob = new GlobalConfigurationBuilder()
                 .nonClusteredDefault().globalJmxStatistics().enable()
-                .jmxDomain("org.infinispan.carmart.tx")
+                .jmxDomain("org.infinispan.carmart.tx-jdbc")
                 .build();
             Configuration loc = new ConfigurationBuilder()
                 .clustering().cacheMode(CacheMode.LOCAL)
@@ -71,15 +71,17 @@ public class JBossASCacheContainerProvider implements CacheContainerProvider {
                 .addProperty("dataColumnName", "DATA_COLUMN")
                 .addProperty("timestampColumnName", "TIMESTAMP_COLUMN")
                 .addProperty("timestampColumnType", "BIGINT")
-                .addProperty("connectionFactoryClass", "org.infinispan.loaders.jdbc.connectionfactory.ManagedConnectionFactory")
+                .addProperty("connectionFactoryClass", "org.infinispan.loaders.jdbc.connectionfactory.PooledConnectionFactory")
                 .addProperty("connectionUrl", "jdbc:mysql://localhost:3306/carmartdb")
+                .addProperty("userName", "carmart")
+                .addProperty("password", "carmart")
                 .addProperty("driverClass", "com.mysql.jdbc.Driver")
                 .addProperty("idColumnType", "VARCHAR(255)")
                 .addProperty("dataColumnType", "VARBINARY(1000)")
                 .addProperty("dropTableOnExit", "false")
                 .addProperty("createTableOnStart", "true")
                 .addProperty("databaseType", "MYSQL")
-                .addProperty("datasourceJndiLocation", "java:jboss/datasources/ExampleDS")
+                //.addProperty("datasourceJndiLocation", "java:jboss/datasources/ExampleDS")
                 .build();
             manager = new DefaultCacheManager(glob, loc, true);
         }

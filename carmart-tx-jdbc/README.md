@@ -51,7 +51,7 @@ Building and deploying to JBoss AS 7
 
 6) Undeploy the application
 
-    `mvn jboss-as:undeploy`
+    `mvn jboss-as:undeploy -Pjbossas`
 
 
 Building and deploying to Tomcat 7
@@ -96,4 +96,35 @@ After that, Maven will be able to deploy the application to the running Tomcat c
 
 5) Undeploy the application
 
-    `mvn tomcat:undeploy`
+    `mvn tomcat:undeploy -Ptomcat`
+
+
+Building and deploying to JBoss AS 7 with C3P0 datasource
+---------------------------------------------------------
+
+In this profile we use PooledConnectionFactory and thus connect to relational database directly 
+without managed datasource. As a results, we do not have to define datasources in standalone.xml nor
+deploy jdbc driver as a standalone deployment but rather package it with application.
+
+0) Prepare local MySQL database:
+
+    `carmartdb`
+    
+   acessible with the following credentials:
+   
+    `username: carmart`
+    `password: carmart`
+
+1) Start JBoss AS 7 where your application will run
+
+    `$JBOSS_HOME/bin/standalone.sh`
+
+2) Build and deploy the application
+
+    `mvn clean package jboss-as:deploy -Pjbossas-c3p0`
+
+3) Go to http://localhost:8080/carmart-tx-jdbc
+
+4) Undeploy the application
+
+    `mvn jboss-as:undeploy -Pjbossas-c3p0`
