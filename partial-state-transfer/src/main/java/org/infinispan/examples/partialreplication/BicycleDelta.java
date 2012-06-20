@@ -9,7 +9,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import org.infinispan.atomic.Delta;
 import org.infinispan.atomic.DeltaAware;
-import org.infinispan.marshall.AbstractExternalizer;
+import org.infinispan.marshall.AdvancedExternalizer;
 import org.infinispan.util.Util;
 
 /**
@@ -82,7 +82,7 @@ public class BicycleDelta implements Delta {
     /**
      * An externalizer that is used to marshall BicycleDelta objects
      */
-    public static class Externalizer extends AbstractExternalizer<BicycleDelta> {
+    public static class Externalizer implements AdvancedExternalizer<BicycleDelta> {
 
         @Override
         public Set<Class<? extends BicycleDelta>> getTypeClasses() {
