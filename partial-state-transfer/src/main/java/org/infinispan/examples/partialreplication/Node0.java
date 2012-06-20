@@ -1,6 +1,6 @@
 /*
  * JBoss, Home of Professional Open Source
- * Copyright 2011 Red Hat Inc. and/or its affiliates and other
+ * Copyright 2012 Red Hat Inc. and/or its affiliates and other
  * contributors as indicated by the @author tags. All rights reserved.
  * See the copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -22,23 +22,49 @@
  */
 package org.infinispan.examples.partialreplication;
 
+import java.io.Console;
 import org.infinispan.Cache;
+import static org.infinispan.examples.partialreplication.Node1.BIKE1;
 
+/**
+ * 
+ * Node0.
+ * 
+ * @author Martin Gencur
+ */
 public class Node0 extends AbstractNode {
 
-   public static void main(String[] args) throws Exception {
-      new Node0().run();
-   }
-   
-   public void run() {
-      Cache<String, String> cache = getCacheManager().getCache("Demo");
+    private static final String initialPrompt = "Choose action:\n" + "============= \n"
+            + "p   -  print current bike components\n" + "q   -  quit\n";
 
-      waitForClusterToForm();
-   }
-   
-   @Override
-   protected int getNodeId() {
-      return 0;
-   }
+    public static void main(String[] args) throws Exception {
+        new Node0().run();
+    }
+
+    public void run() {
+        Cache<String, Bicycle> cache = getCacheManager().getCache("Demo");
+
+        waitForClusterToForm();
+
+        Console con = System.console();
+        con.printf(initialPrompt);
+        while (true) {
+
+            String action = con.readLine(">");
+
+            if ("p".equals(action)) {
+
+                System.out.println(cache.get(BIKE1));
+
+            } else if ("q".equals(action)) {
+                System.exit(0);
+            }
+        }
+    }
+
+    @Override
+    protected int getNodeId() {
+        return 0;
+    }
 
 }

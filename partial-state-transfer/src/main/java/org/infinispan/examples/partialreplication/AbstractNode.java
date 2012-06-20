@@ -1,6 +1,6 @@
 /*
  * JBoss, Home of Professional Open Source
- * Copyright 2011 Red Hat Inc. and/or its affiliates and other
+ * Copyright 2012 Red Hat Inc. and/or its affiliates and other
  * contributors as indicated by the @author tags. All rights reserved.
  * See the copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -37,6 +37,14 @@ import java.io.IOException;
 
 import static org.infinispan.config.Configuration.CacheMode.REPL_SYNC;
 
+/**
+ * 
+ * AbstractNode.
+ * 
+ * @author Pete Muir
+ * @author Martin Gencur
+ * 
+ */
 @SuppressWarnings("unused")
 public abstract class AbstractNode {
    
@@ -45,36 +53,26 @@ public abstract class AbstractNode {
             GlobalConfigurationBuilder.defaultClusteredBuilder()
                   .transport().addProperty("configurationFile", "jgroups.xml")
                   .serialization()
-                      .addAdvancedExternalizer(new HugeObjectDelta.Externalizer())
-                      .addAdvancedExternalizer(new HugeObject.Externalizer())
+                      .addAdvancedExternalizer(new BicycleDelta.Externalizer())
+                      .addAdvancedExternalizer(new Bicycle.Externalizer())
                   .build(),
             new ConfigurationBuilder()
                   .clustering().cacheMode(CacheMode.REPL_SYNC)
                   .transaction()
                       .transactionMode(TransactionMode.TRANSACTIONAL)
-                      .autoCommit(false).lockingMode(LockingMode.OPTIMISTIC)
+                      .autoCommit(true).lockingMode(LockingMode.OPTIMISTIC)
                       .transactionManagerLookup(new JBossStandaloneJTAManagerLookup())
                   .locking().isolationLevel(IsolationLevel.READ_COMMITTED)
                   .build()
       );
    }
 
-   private static EmbeddedCacheManager createCacheManagerFromXml() throws IOException {
-      return new DefaultCacheManager("infinispan-replication.xml");
-   }
-   
    public static final int CLUSTER_SIZE = 2;
 
    private final EmbeddedCacheManager cacheManager;
    
    public AbstractNode() {
       this.cacheManager = createCacheManagerProgramatically();
-      // Uncomment to create cache from XML
-      // try {
-      //    this.cacheManager = createCacheManagerFromXml();
-      // } catch (IOException e) {
-      //    throw new RuntimeException(e);
-      // }
    }
    
    protected EmbeddedCacheManager getCacheManager() {
@@ -82,8 +80,7 @@ public abstract class AbstractNode {
    }
    
    protected void waitForClusterToForm() {
-      // Wait for the cluster to form, erroring if it doesn't form after the
-      // timeout
+      // Wait for the cluster to form, erroring if it doesn't form after the timeout
       if (!ClusterValidation.waitForClusterToForm(getCacheManager(), getNodeId(), CLUSTER_SIZE)) {
          throw new IllegalStateException("Error forming cluster, check the log");
       }

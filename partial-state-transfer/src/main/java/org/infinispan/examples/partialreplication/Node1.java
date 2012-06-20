@@ -1,6 +1,6 @@
 /*
  * JBoss, Home of Professional Open Source
- * Copyright 2011 Red Hat Inc. and/or its affiliates and other
+ * Copyright 2012 Red Hat Inc. and/or its affiliates and other
  * contributors as indicated by the @author tags. All rights reserved.
  * See the copyright.txt in the distribution for a full listing of
  * individual contributors.
@@ -22,42 +22,97 @@
  */
 package org.infinispan.examples.partialreplication;
 
+import java.io.Console;
+
 import javax.transaction.TransactionManager;
 
 import org.infinispan.Cache;
 import org.infinispan.CacheImpl;
 
+/**
+ * 
+ * Node1.
+ * 
+ * @author Martin Gencur
+ */
 public class Node1 extends AbstractNode {
 
-   public static void main(String[] args) throws Exception {
-      new Node1().run();
-   }
+    public static final String BIKE1 = "bike1";
+    private static final String initialPrompt = "Choose action:\n" + "============= \n"
+            + "u   -  update some of bike components\n" + "p   -  print current bike components\n" + "q   -  quit\n";
 
-   public void run() {
-      Cache<, String> cache = getCacheManager().getCache("Demo");
-      TransactionManager tm = ((CacheImpl) cache).getAdvancedCache().getTransactionManager();
-      System.out.println("Transaction: " + tm.getClass().getName());
-      
-      waitForClusterToForm();
-      
-      // Put some information in the cache that we can display on the other node
-      try {
-          tm.begin();
-              System.out.println(tm.getTransaction().toString());
-              cache.put("key", "value");
-          tm.commit();
-      } catch (Exception e) {
-          try {
-              if (tm != null) {
-                  tm.rollback();
-              }
-          } catch (Exception ex) {}
-      }
-   }
-   
-   @Override
-   protected int getNodeId() {
-      return 1;
-   }
+    public static void main(String[] args) throws Exception {
+        new Node1().run();
+    }
 
+    public void run() {
+        Cache<String, Bicycle> cache = getCacheManager().getCache("Demo");
+        TransactionManager tm = ((CacheImpl) cache).getAdvancedCache().getTransactionManager();
+
+        waitForClusterToForm();
+
+        // put some information in the cache that we can display on the other node
+        Bicycle bike = new Bicycle();
+        bike.initializeWithDefaults();
+        try {
+            tm.begin();
+            cache.put(BIKE1, bike);
+            tm.commit();
+        } catch (Exception e) {
+            try {
+                if (tm != null) {
+                    tm.rollback();
+                }
+            } catch (Exception ex) {
+            }
+        }
+
+        Console con = System.console();
+        con.printf(initialPrompt);
+        
+        while (true) {
+
+            String action = con.readLine(">");
+
+            if ("p".equals(action)) {
+
+                Bicycle ob = cache.get(BIKE1);
+                System.out.println(ob);
+
+            } else if ("u".equals(action)) {
+
+                try {
+                    tm.begin();
+                    
+                    //retrieve the bicycle from the cache
+                    Bicycle toChange = cache.get(BIKE1);
+                    
+                    //apply some changes, only these changes will be replicated
+                    System.out.println("Updating components: frame, fork");
+                    toChange.setFrame("New Frame");
+                    toChange.setFork("New Fork");
+                    
+                    //store the bicycle back to the cache
+                    cache.put(BIKE1, toChange);
+                    
+                    tm.commit();
+                } catch (Exception e) {
+                    try {
+                        if (tm != null) {
+                            tm.rollback();
+                        }
+                    } catch (Exception ex) {
+                    }
+                }
+
+            } else if ("q".equals(action)) {
+                System.exit(0);
+            }
+        }
+    }
+
+    @Override
+    protected int getNodeId() {
+        return 1;
+    }
 }
