@@ -1,13 +1,7 @@
 package org.infinispan.examples.partialreplication;
 
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-import java.util.Set;
 import org.infinispan.atomic.Delta;
 import org.infinispan.atomic.DeltaAware;
-import org.infinispan.marshall.AbstractExternalizer;
-import org.infinispan.util.Util;
 
 /**
  * 
@@ -248,30 +242,4 @@ public class Bicycle implements DeltaAware, Cloneable {
         return sb.toString();
     }
 
-    /**
-     * An externalizer that is used to marshall Bicycle objects
-     */
-    public static class Externalizer extends AbstractExternalizer<Bicycle> {
-
-        @Override
-        public Set<Class<? extends Bicycle>> getTypeClasses() {
-            return Util.<Class<? extends Bicycle>> asSet(Bicycle.class);
-        }
-
-        @Override
-        public void writeObject(ObjectOutput output, Bicycle object) throws IOException {
-            output.writeObject(object);
-        }
-
-        @Override
-        public Bicycle readObject(ObjectInput input) throws IOException, ClassNotFoundException {
-            return (Bicycle) input.readObject();
-        }
-
-        @Override
-        public Integer getId() {
-            return 22; //put some random value here to identify the externalizer (must not be in reserved value ranges)
-        }
-        
-    }
 }
