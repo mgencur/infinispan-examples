@@ -54,6 +54,7 @@ public abstract class AbstractNode {
                   .transport().addProperty("configurationFile", "jgroups.xml")
                   .serialization()
                       .addAdvancedExternalizer(new BicycleDelta.Externalizer())
+                      .addAdvancedExternalizer(new Bicycle.Externalizer())
                   .build(),
             new ConfigurationBuilder()
                   .clustering().cacheMode(CacheMode.REPL_SYNC)
